@@ -53,13 +53,16 @@ let args = [join(root, 'main.mts')];
 if (mode !== 'node') {
   let compiler = join(root, 'node_modules/scriptc/bin/scriptc.exe');
   if (mode === 'flat') {
-    assert(process.platform === 'darwin' && process.arch === 'arm64', 'The flat control is configured for macOS arm64');
+    // Copy the same toolchain packages to a directory with no node_modules
+    // segment and point a copy of the same compiler binary at them.
     const flatRoot = join(artifacts, 'toolchain');
     await mkdir(join(flatRoot, 'bin'), { recursive: true });
-    for (const name of ['cli-darwin-arm64', 'llvm-darwin-arm64', 'runtime-darwin-arm64']) {
+    const manifest = await readFile(`${compiler}.json`, 'utf8');
+    const names = new Set([...manifest.matchAll(/\.\.\/\.\.\/@scriptc\/([^/"]+)/g)].map((match) => match[1]));
+    assert(names.size > 0, 'No @scriptc toolchain packages found in the compiler manifest');
+    for (const name of names) {
       await cp(join(root, 'node_modules/@scriptc', name), join(flatRoot, 'tc', name), { recursive: true });
     }
-    const manifest = await readFile(`${compiler}.json`, 'utf8');
     const flatCompiler = join(flatRoot, 'bin/scriptc.exe');
     await cp(compiler, flatCompiler);
     await writeFile(`${flatCompiler}.json`, manifest.replaceAll('../../@scriptc/', '../tc/'));
