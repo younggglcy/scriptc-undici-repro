@@ -1,0 +1,5 @@
+node_modules/
+.artifacts/
+*.ll
+*.dSYM/
+.DS_Store

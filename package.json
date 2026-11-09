@@ -1,0 +1,22 @@
+{
+  "name": "scriptc-undici-repro",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reproduce scriptc 0.4.9 undici shim compilation failures under node_modules on macOS arm64",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "npm run repro",
+    "repro": "node reproduce.mjs npm",
+    "control": "node reproduce.mjs flat",
+    "baseline": "node reproduce.mjs node"
+  },
+  "dependencies": {
+    "undici": "7.30.2"
+  },
+  "devDependencies": {
+    "scriptc": "0.4.9"
+  }
+}
